@@ -19,28 +19,29 @@
 
 			navigation : false,
 			speed      : 500,
-			easing     : 'linear'
+			easing     : 'linear',
+			startTab   : 0
 
         };		
 		var settings = $.extend({}, defaults, args);
 
+		// Set up variables
 		var $this = this;
-
-		var slider = $('>div', this);
-
+		var $slider = $('>div', this);
 		var tabCount = $('>div >div', this).size();
 
 		// Apply CSS to container and child elements
-		this.css({
+		$this.css({
 			width    : '100%',
 			overflow : 'hidden',
 			position : 'relative',
-			height   : $('>div >div:first-child', this).height()
+			height   : $('>div >div:nth-child('+ (settings.startTab+1) +')', $this).height()
 		});
 
-		$(slider).css({
+		$slider.css({
 			width    : (100*tabCount) + '%',
-			position : 'absolute'
+			position : 'absolute',
+			left : settings.startTab*-100 + '%'
 		});
 
 		$('>div >div', this).css({
@@ -49,8 +50,8 @@
 			float : 'left' 
 		});
 
-		if(settings.navigation)
-			$(settings.navigation).show().find('li:first-child a').addClass('current');
+		// Add the current class to the navigation
+		$(settings.navigation).show().find('li:nth-child('+ (settings.startTab+1) +') a').addClass('current');
 
 		// Add click event to navigation
 		$(settings.navigation + ' a').click(function(){
@@ -59,19 +60,31 @@
 
 			var index = $(this).parent().index();
 
-			$this.animate({
-				height : $('>div:nth-child('+ (index+1) +')', slider).height()
-			}, settings.speed);
-
-			slider.stop().animate({
-
-				'left' : index*-100 + '%'
-
-			}, settings.speed, settings.easing);
+			changeTab(index);
 
 			return false;
 		});
 
+		/**
+		 * Takes in an index and changes to the appropriate tab
+		 * @param {int} index
+		 */
+		function changeTab(index){
+
+			$(settings.navigation).find('li a').removeClass('current');
+			$(settings.navigation).find('li:nth-child('+ (index+1) +') a').addClass('current')
+
+			$this.animate({
+				height : $('>div:nth-child('+ (index+1) +')', $slider).height()
+			}, settings.speed);
+
+			$slider.stop().animate({
+
+				left : index*-100 + '%'
+
+			}, settings.speed, settings.easing);
+
+		}
 
 	};
 
